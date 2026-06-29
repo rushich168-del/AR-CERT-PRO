@@ -1,0 +1,6 @@
+~$*
+*.tmp
+*.bak
+Output/
+Output/Logs/
+*.log
