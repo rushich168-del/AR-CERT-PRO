@@ -4,7 +4,7 @@
 
 AR-CERT PRO is a Microsoft Word VBA application designed to generate professional certificates automatically from Excel data. The project is structured as a commercial-quality automation solution for AaryaRushi Automation Labs, with a clean module layout, reusable components, and a roadmap for controlled feature development.
 
-Current Version: **v0.6**
+Current Version: **v0.7**
 
 ## Features
 
@@ -14,6 +14,7 @@ Current Version: **v0.6**
 - Word template engine that opens templates as generated document copies.
 - Placeholder replacement for `<<HeaderName>>` fields in document body content.
 - PDF export engine using Word fixed-format export.
+- Batch certificate generation from Excel rows.
 - Template-based certificate design support.
 - Placeholder replacement architecture.
 - PDF export module boundary.
@@ -22,7 +23,7 @@ Current Version: **v0.6**
 - Shared file, folder, filename, and timestamp utilities.
 - Organized project structure ready for source control and release packaging.
 
-> Note: v0.6 implements the PDF export engine only. Batch generation, mail merge, and GUI work remain planned for future versions.
+> Note: v0.7 implements the batch certificate generator only. Mail merge and GUI work remain planned for future versions.
 
 ## Folder Structure
 
@@ -85,7 +86,7 @@ AR-CERT-PRO/
 - Ensure PDF output folders exist before export.
 - Sanitize PDF output filenames.
 
-### v0.7 - Certificate Generation Workflow - Planned
+### v0.7 - Batch Certificate Generator - Complete
 
 - Generate certificates from Word templates.
 - Save generated Word documents.
@@ -93,7 +94,7 @@ AR-CERT-PRO/
 
 ### v0.8 - Output Packaging - Planned
 
-- Export generated certificates as PDF.
+- Organize generated DOCX and PDF outputs.
 - Standardize output naming.
 - Prepare release-ready output folders.
 
@@ -107,6 +108,7 @@ AR-CERT-PRO/
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| v0.7 | 2026-06-30 | Added batch certificate generator connecting Excel, Word, placeholder, DOCX, and PDF engines. |
 | v0.6 | 2026-06-30 | Added PDF export engine using Word fixed-format export. |
 | v0.5 | 2026-06-30 | Added placeholder replacement engine for Word document body placeholders. |
 | v0.4 | 2026-06-30 | Added Word template engine for opening, saving, closing, and accessing generated documents. |

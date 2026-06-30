@@ -10,7 +10,7 @@ AaryaRushi Automation Labs
 
 ## Current Version
 
-v0.6
+v0.7
 
 ## Git Status
 
@@ -55,26 +55,28 @@ Commercial Product Development
 - PDF export using Word fixed-format export.
 - PDF output folder creation before export.
 - PDF output filename sanitization.
+- Batch certificate generation from Excel data rows.
+- Per-row Word template copy creation, placeholder replacement, DOCX save, and PDF export.
+- Name-based output file naming with row-number fallback.
+- Row-level success/failure logging and final summary counts.
 
 ## Not Yet Implemented
 
-- Batch generation workflow.
 - Mail merge.
 - GUI.
 
 ## Testing Status
 
-Static review completed for v0.6.
+Static review completed for v0.7.
 
 Manual Word/VBA runtime testing is still pending.
 
 ## Known Issues
 
-None recorded for v0.6.
+None recorded for v0.7.
 
 ## Backlog
 
-- Certificate generation workflow.
 - Professional user interface.
 - Progress bar.
 - Settings window.
@@ -89,6 +91,10 @@ None recorded for v0.6.
 - Every completed version ends with a Git commit.
 
 ## Release History
+
+### v0.7
+
+Batch Certificate Generator completed.
 
 ### v0.6
 

@@ -2,6 +2,29 @@
 
 All notable changes to AR-CERT PRO will be documented in this file.
 
+## [v0.7] - 2026-06-30
+
+### Added
+
+- Added Batch Certificate Generator workflow in `Source/Main.bas`.
+- Connected configuration, logging, Excel reader, Word template, placeholder replacement, and PDF export modules.
+- Added row-by-row processing from Excel row 2 through the last populated row.
+- Added per-row DOCX and PDF output generation.
+- Added name-based output file naming with row-number fallback and filename sanitization.
+- Added row-level success/failure logging and final summary counts.
+- Added configured default worksheet name in `Config.bas`.
+
+### Changed
+
+- Updated project version to v0.7.
+- Updated README roadmap status for the Batch Certificate Generator.
+- Updated project state documentation.
+
+### Notes
+
+- Processing continues when an individual row fails.
+- GUI and mail merge are not implemented in this version.
+
 ## [v0.6] - 2026-06-30
 
 ### Added

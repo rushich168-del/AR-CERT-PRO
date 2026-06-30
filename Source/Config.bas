@@ -3,13 +3,14 @@ Option Explicit
 
 ' Project identity and default folder/file configuration.
 Public Const PROJECT_NAME As String = "AR-CERT PRO"
-Public Const PROJECT_VERSION As String = "v0.6"
+Public Const PROJECT_VERSION As String = "v0.7"
 Public Const TEMPLATE_FOLDER As String = "Templates"
 Public Const EXCEL_FOLDER As String = "Excel"
 Public Const OUTPUT_FOLDER As String = "Output"
 Public Const LOG_FOLDER As String = "Output\Logs"
 Public Const DEFAULT_EXCEL_FILE As String = "Students.xlsx"
 Public Const DEFAULT_TEMPLATE_FILE As String = "Certificate_Template.docx"
+Public Const DEFAULT_WORKSHEET_NAME As String = "Sheet1"
 
 ' Backward-compatible configuration values populated during application startup.
 Public ProjectFolder As String
