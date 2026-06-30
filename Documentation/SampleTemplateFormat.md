@@ -10,33 +10,32 @@ The template is opened as a new generated document copy. The original template f
 
 ## Required Placeholders
 
-Placeholders must appear exactly like this in the Word document body:
+For the tested sample workbook, placeholders must appear exactly like this in the Word document body:
 
 ```text
-<<Student Name>>
-<<Course>>
-<<Certificate No>>
-<<Date>>
+<<Name>>
+<<Class>>
+<<Prize>>
 ```
 
 ## Example Certificate Text
 
 ```text
 This certificate is proudly presented to
-<<Student Name>>
+<<Name>>
 
-for successfully completing
-<<Course>>
+from
+<<Class>>
 
-Certificate No: <<Certificate No>>
-Date: <<Date>>
+for receiving
+<<Prize>>
 ```
 
 ## Supported Placeholder Rules
 
 - Placeholder format is `<<HeaderName>>`.
 - `HeaderName` must match an Excel header from row 1.
-- Header names with spaces are supported, such as `<<Student Name>>`.
+- Header names with spaces are supported by the engine, but the tested sample uses `Name`, `Class`, and `Prize`.
 - Placeholder matching is case-insensitive through Word Find behavior.
 - Replacement currently applies to the Word document body.
 - Header/footer, shape, text box, PDF-only, and mail merge placeholders are not part of the manual test scope.

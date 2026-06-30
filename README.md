@@ -4,7 +4,7 @@
 
 AR-CERT PRO is a Microsoft Word VBA application designed to generate professional certificates automatically from Excel data. The project is structured as a commercial-quality automation solution for AaryaRushi Automation Labs, with a clean module layout, reusable components, and a roadmap for controlled feature development.
 
-Current Version: **v0.8**
+Current Version: **v0.9**
 
 ## Features
 
@@ -23,7 +23,7 @@ Current Version: **v0.8**
 - Shared file, folder, filename, and timestamp utilities.
 - Organized project structure ready for source control and release packaging.
 
-> Note: v0.8 adds the manual testing package. Mail merge and GUI work remain planned for future versions.
+> Note: v0.9 validates the real Microsoft Word VBA workflow. Mail merge and GUI work remain planned for future versions.
 
 ## Folder Structure
 
@@ -101,7 +101,13 @@ AR-CERT-PRO/
 - Document sample Word template placeholders.
 - Add VBA test runner for manual end-to-end checks.
 
-### v0.9 - Output Packaging - Planned
+### v0.9 - Real VBA Test Validation - Complete
+
+- Validated the complete workflow inside Microsoft Word VBA.
+- Generated DOCX and PDF output files successfully.
+- Confirmed 3 data rows processed with 3 successes and 0 failures.
+
+### v1.0 - Output Packaging - Planned
 
 - Organize generated DOCX and PDF outputs.
 - Standardize output naming.
@@ -141,7 +147,7 @@ Create the template file at:
 Templates/Certificate_Template.docx
 ```
 
-Add placeholders in the document body using the format shown in `Documentation/SampleTemplateFormat.md`, such as `<<Student Name>>`.
+Add placeholders in the document body using the format shown in `Documentation/SampleTemplateFormat.md`, such as `<<Name>>`, `<<Class>>`, and `<<Prize>>`.
 
 ### 5. Run the workflow test
 
@@ -173,10 +179,27 @@ Log files are saved in:
 Output/Logs/
 ```
 
+## Real VBA Test Validation
+
+v0.9 was tested successfully inside Microsoft Word VBA.
+
+- `TestLogger`: PASS
+- `TestConfigPaths`: PASS
+- `TestExcelEngine`: PASS
+- `TestWordEngine`: PASS
+- `TestPDFExporter`: PASS
+- `TestCompleteWorkflow`: PASS
+- Batch total rows: 3
+- Batch success count: 3
+- Batch failure count: 0
+- Generated DOCX files successfully.
+- Generated PDF files successfully.
+
 ## Version History
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| v0.9 | 2026-06-30 | Validated real Word VBA workflow, fixed WordEngine compile issue, and aligned sample placeholder docs. |
 | v0.8 | 2026-06-30 | Added manual testing package with sample formats and VBA test runner. |
 | v0.7 | 2026-06-30 | Added batch certificate generator connecting Excel, Word, placeholder, DOCX, and PDF engines. |
 | v0.6 | 2026-06-30 | Added PDF export engine using Word fixed-format export. |

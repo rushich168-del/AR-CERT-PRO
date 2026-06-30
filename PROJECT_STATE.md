@@ -10,7 +10,7 @@ AaryaRushi Automation Labs
 
 ## Current Version
 
-v0.8
+v0.9
 
 ## Git Status
 
@@ -64,6 +64,9 @@ Commercial Product Development
 - Manual sample Word template format documentation.
 - Manual VBA test runner for engine-level and complete workflow checks.
 - v0.8 Manual Testing Package Completed.
+- v0.9 Real Word VBA validation completed.
+- WordEngine duplicateDocument compile issue fixed with `newDocument`.
+- Sample placeholder test and documentation aligned to `Name`, `Class`, and `Prize`.
 
 ## Not Yet Implemented
 
@@ -72,13 +75,19 @@ Commercial Product Development
 
 ## Testing Status
 
-Static review completed for v0.8.
+Real Microsoft Word VBA workflow validation completed for v0.9.
 
-Manual Word/VBA runtime testing package is ready.
+### Real Workflow Result
+
+- Total rows: 3
+- Success: 3
+- Failure: 0
+- Generated DOCX files successfully.
+- Generated PDF files successfully.
 
 ## Known Issues
 
-None recorded for v0.8.
+None recorded for v0.9 after validation.
 
 ## Backlog
 
@@ -96,6 +105,10 @@ None recorded for v0.8.
 - Every completed version ends with a Git commit.
 
 ## Release History
+
+### v0.9
+
+Real VBA Test Validation completed.
 
 ### v0.8
 

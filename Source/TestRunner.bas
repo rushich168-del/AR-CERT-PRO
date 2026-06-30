@@ -142,6 +142,8 @@ End Sub
 
 Public Sub TestPlaceholderEngine()
     Dim generatedDocument As Object
+    Dim placeholdersFound As Long
+    Dim replacementsCompleted As Long
 
     On Error GoTo ErrorHandler
 
@@ -169,10 +171,21 @@ Public Sub TestPlaceholderEngine()
         GoTo Cleanup
     End If
 
-    If ReplacePlaceholder(generatedDocument, "Student Name", "Test Student") Then
-        LogTestResult "TestPlaceholderEngine", True, "Placeholder replacement call completed."
+    placeholdersFound = CountSamplePlaceholders(generatedDocument)
+
+    If placeholdersFound = 0 Then
+        LogTestResult "TestPlaceholderEngine", False, "No sample placeholders found. Expected <<Name>>, <<Class>>, or <<Prize>>."
+        GoTo Cleanup
+    End If
+
+    replacementsCompleted = ReplaceSamplePlaceholder(generatedDocument, "Name", "Test Student")
+    replacementsCompleted = replacementsCompleted + ReplaceSamplePlaceholder(generatedDocument, "Class", "Test Class")
+    replacementsCompleted = replacementsCompleted + ReplaceSamplePlaceholder(generatedDocument, "Prize", "Test Prize")
+
+    If replacementsCompleted > 0 Then
+        LogTestResult "TestPlaceholderEngine", True, "Sample placeholder replacements completed: " & CStr(replacementsCompleted)
     Else
-        LogTestResult "TestPlaceholderEngine", False, "ReplacePlaceholder returned False."
+        LogTestResult "TestPlaceholderEngine", False, "Replacement count was 0 for all sample placeholders."
     End If
 
 Cleanup:
@@ -183,6 +196,44 @@ ErrorHandler:
     LogTestResult "TestPlaceholderEngine", False, Err.Description
     Resume Cleanup
 End Sub
+
+Private Function CountSamplePlaceholders(ByVal Doc As Object) As Long
+    On Error GoTo ErrorHandler
+
+    If PlaceholderExists(Doc, "Name") Then
+        CountSamplePlaceholders = CountSamplePlaceholders + 1
+    End If
+
+    If PlaceholderExists(Doc, "Class") Then
+        CountSamplePlaceholders = CountSamplePlaceholders + 1
+    End If
+
+    If PlaceholderExists(Doc, "Prize") Then
+        CountSamplePlaceholders = CountSamplePlaceholders + 1
+    End If
+
+    Exit Function
+
+ErrorHandler:
+    CountSamplePlaceholders = 0
+End Function
+
+Private Function ReplaceSamplePlaceholder(ByVal Doc As Object, ByVal PlaceholderName As String, ByVal ReplacementValue As String) As Long
+    On Error GoTo ErrorHandler
+
+    If PlaceholderExists(Doc, PlaceholderName) Then
+        If ReplacePlaceholder(Doc, PlaceholderName, ReplacementValue) Then
+            If Not PlaceholderExists(Doc, PlaceholderName) Then
+                ReplaceSamplePlaceholder = 1
+            End If
+        End If
+    End If
+
+    Exit Function
+
+ErrorHandler:
+    ReplaceSamplePlaceholder = 0
+End Function
 
 Public Sub TestPDFExporter()
     Dim generatedDocument As Object

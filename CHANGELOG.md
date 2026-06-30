@@ -2,6 +2,28 @@
 
 All notable changes to AR-CERT PRO will be documented in this file.
 
+## [v0.9] - 2026-06-30
+
+### Fixed
+
+- Fixed the WordEngine compile issue caused by the local `duplicateDocument` name conflicting with the `DuplicateDocument` function name.
+- Confirmed `DuplicateDocument` now uses the safe local variable name `newDocument`.
+
+### Changed
+
+- Updated `TestPlaceholderEngine` to validate the tested sample placeholders: `<<Name>>`, `<<Class>>`, and `<<Prize>>`.
+- Updated sample Excel and Word template documentation to use one consistent tested sample set.
+- Updated project version to v0.9.
+
+### Validation
+
+- Real Word VBA testing completed successfully.
+- `TestCompleteWorkflow` passed in Microsoft Word VBA.
+- Batch generation processed 3 rows.
+- Success count: 3.
+- Failure count: 0.
+- Generated DOCX and PDF files successfully.
+
 ## [v0.8] - 2026-06-30
 
 ### Added
