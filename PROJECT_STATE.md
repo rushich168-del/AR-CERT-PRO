@@ -10,15 +10,7 @@ AaryaRushi Automation Labs
 
 ## Current Version
 
-v0.1
-
-## Current Sprint
-
-Sprint 2
-
-## Project Status
-
-Core Engine Completed
+v0.3
 
 ## Git Status
 
@@ -30,114 +22,77 @@ GitHub Connected
 
 main
 
-## Initial Commit
-
-53efd40
-
 ## Current Stage
 
 Commercial Product Development
 
 ## Completed Modules
 
-✅ Config.bas
-
-✅ FileManager.bas
-
-✅ ExcelReader.bas
-
-✅ PlaceholderEngine.bas
-
-✅ WordEngine.bas
-
-✅ PDFExporter.bas
-
-✅ Main.bas
+- Config.bas
+- Logger.bas
+- Utilities.bas
+- FileManager.bas
+- ExcelReader.bas
 
 ## Completed Features
 
-✅ Excel Reading
+- Project configuration constants and relative paths.
+- Timestamped logging under `Output/Logs`.
+- Shared folder, file, filename, timestamp, and path utilities.
+- Late-bound Excel application lifecycle management.
+- Workbook open/close handling with missing-file checks.
+- Worksheet selection with missing-worksheet handling.
+- Last row, last column, cell, and range reading from the active worksheet.
 
-✅ Placeholder Replacement
+## Not Yet Implemented
 
-✅ Word Document Generation
-
-✅ PDF Export
-
-✅ Multi-student Processing
-
-✅ Git Integration
-
-✅ GitHub Integration
-
-## Integration Status
-
-✅ Passed
+- Word automation workflow.
+- Placeholder replacement workflow.
+- PDF generation workflow.
+- Mail merge.
+- GUI.
 
 ## Testing Status
 
-### End-to-End Certificate Generation
+Static review completed for v0.3.
 
-Status
-
-PASSED
+Manual Word/VBA runtime testing is still pending.
 
 ## Known Issues
 
-None
+None recorded for v0.3.
 
 ## Backlog
 
-- Professional User Interface
-- Progress Bar
-- Logging Improvements
-- Settings Window
-- Professional Error Messages
-- Installer
-- Branding
+- Placeholder engine workflow.
+- Certificate generation workflow.
+- PDF export workflow.
+- Professional user interface.
+- Progress bar.
+- Settings window.
+- Installer.
+- Branding.
 
-## Next Sprint
+## Development Rules
 
-Sprint 2
-
-## Goal
-
-Transform AR-CERT PRO into a commercial-quality product.
-
-## Development Workflow
-
-Architecture
-
-↓
-
-Codex Implementation
-
-↓
-
-Architect Review
-
-↓
-
-Testing
-
-↓
-
-Release
-
-## Rules
-
-- One sprint at a time.
+- One version at a time.
 - No feature creep.
-- Every sprint ends with a Git commit.
-- Every completed sprint updates PROJECT_STATE.md.
+- Every completed version updates README, CHANGELOG, and PROJECT_STATE.
+- Every completed version ends with a Git commit.
 
 ## Release History
 
+### v0.3
+
+Excel Reader Engine completed.
+
+### v0.2
+
+Configuration and logging completed.
+
 ### v0.1
 
-First working commercial engine.
-
-Excel → Word → PDF generation completed.
+Project foundation completed.
 
 ## Last Updated
 

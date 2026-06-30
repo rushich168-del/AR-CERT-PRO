@@ -2,6 +2,26 @@
 
 All notable changes to AR-CERT PRO will be documented in this file.
 
+## [v0.3] - 2026-06-30
+
+### Added
+
+- Added late-bound Excel reader engine in `Source/ExcelReader.bas`.
+- Added Excel lifecycle functions: `InitializeExcel`, `CloseExcel`, `OpenWorkbook`, and `CloseWorkbook`.
+- Added worksheet and data access functions: `GetWorksheet`, `GetLastRow`, `GetLastColumn`, `ReadCell`, and `ReadRange`.
+- Added logging for important Excel reader actions and errors.
+- Added default workbook path handling through `Config.bas`.
+
+### Changed
+
+- Updated project version to v0.3.
+- Updated README roadmap status for the Excel Reader Engine.
+- Updated project state documentation.
+
+### Notes
+
+- Word automation, placeholder replacement, PDF generation, mail merge, and GUI work are not implemented in this version.
+
 ## [v0.2] - 2026-06-30
 
 ### Added
