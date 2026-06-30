@@ -2,6 +2,26 @@
 
 All notable changes to AR-CERT PRO will be documented in this file.
 
+## [v0.6] - 2026-06-30
+
+### Added
+
+- Added PDF Export Engine support in `Source/PDFExporter.bas`.
+- Added `ExportDocumentToPDF` using Word's `ExportAsFixedFormat` method.
+- Added output folder creation before PDF export.
+- Added PDF output filename sanitization.
+- Added logging for PDF export actions and errors.
+
+### Changed
+
+- Updated project version to v0.6.
+- Updated README roadmap status for the PDF Export Engine.
+- Updated project state documentation.
+
+### Notes
+
+- Batch generation is not implemented in this version.
+
 ## [v0.5] - 2026-06-30
 
 ### Added

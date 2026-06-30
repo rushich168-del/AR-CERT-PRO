@@ -5,33 +5,42 @@ Private Const WORD_EXPORT_FORMAT_PDF As Long = 17
 Private Const WORD_EXPORT_OPTIMIZE_FOR_PRINT As Long = 0
 Private Const WORD_EXPORT_ALL_DOCUMENT As Long = 0
 Private Const WORD_EXPORT_DOCUMENT_CONTENT As Long = 0
-Private Const WINDOWS_PATH_SEPARATOR As String = "\"
+Private Const PDF_EXTENSION As String = ".pdf"
 
 ' Exports the supplied Word document to a PDF file without closing the document.
-' Returns True when the export completes successfully and False when validation or export fails.
-Public Function ExportToPDF(ByVal document As Document, ByVal pdfPath As String) As Boolean
+Public Function ExportDocumentToPDF(ByVal Doc As Object, ByVal OutputPDFPath As String) As Boolean
+    Dim safeOutputPath As String
     Dim destinationFolder As String
 
     On Error GoTo ErrorHandler
 
-    pdfPath = Trim$(pdfPath)
+    OutputPDFPath = Trim$(OutputPDFPath)
 
-    If document Is Nothing Or Len(pdfPath) = 0 Then
-        ExportToPDF = False
+    If Doc Is Nothing Then
+        WriteLog "PDF export skipped because document is not available."
+        ExportDocumentToPDF = False
         Exit Function
     End If
 
-    destinationFolder = GetParentFolder(pdfPath)
+    If Len(OutputPDFPath) = 0 Then
+        WriteLog "PDF export skipped because output path is empty."
+        ExportDocumentToPDF = False
+        Exit Function
+    End If
+
+    safeOutputPath = BuildSafePDFPath(OutputPDFPath)
+    destinationFolder = GetParentFolder(safeOutputPath)
 
     If Len(destinationFolder) > 0 Then
-        If Not CreateFolderIfMissing(destinationFolder) Then
-            ExportToPDF = False
+        If Not EnsureFolderExists(destinationFolder) Then
+            WriteLog "PDF export folder could not be created: " & destinationFolder
+            ExportDocumentToPDF = False
             Exit Function
         End If
     End If
 
-    document.ExportAsFixedFormat _
-        OutputFileName:=pdfPath, _
+    Doc.ExportAsFixedFormat _
+        OutputFileName:=safeOutputPath, _
         ExportFormat:=WORD_EXPORT_FORMAT_PDF, _
         OpenAfterExport:=False, _
         OptimizeFor:=WORD_EXPORT_OPTIMIZE_FOR_PRINT, _
@@ -46,54 +55,79 @@ Public Function ExportToPDF(ByVal document As Document, ByVal pdfPath As String)
         BitmapMissingFonts:=True, _
         UseISO19005_1:=False
 
-    ExportToPDF = True
+    WriteLog "PDF exported: " & safeOutputPath
+    ExportDocumentToPDF = True
     Exit Function
 
 ErrorHandler:
+    WriteErrorLog "PDFExporter.ExportDocumentToPDF", Err.Number, Err.Description
+    ExportDocumentToPDF = False
+End Function
+
+' Compatibility wrapper for existing workflow code.
+Public Function ExportToPDF(ByVal Doc As Object, ByVal PDFPath As String) As Boolean
+    On Error GoTo ErrorHandler
+
+    ExportToPDF = ExportDocumentToPDF(Doc, PDFPath)
+    Exit Function
+
+ErrorHandler:
+    WriteErrorLog "PDFExporter.ExportToPDF", Err.Number, Err.Description
     ExportToPDF = False
 End Function
 
-Private Function GetParentFolder(ByVal filePath As String) As String
-    Dim separatorPosition As Long
+Private Function BuildSafePDFPath(ByVal OutputPDFPath As String) As String
+    Dim destinationFolder As String
+    Dim fileName As String
+    Dim baseName As String
 
     On Error GoTo ErrorHandler
 
-    filePath = Trim$(filePath)
-    filePath = RemoveTrailingPathSeparator(filePath)
-    separatorPosition = InStrRev(filePath, WINDOWS_PATH_SEPARATOR)
+    destinationFolder = GetParentFolder(OutputPDFPath)
+    fileName = GetFileName(OutputPDFPath)
 
-    If separatorPosition = 0 Then
-        GetParentFolder = vbNullString
-    ElseIf separatorPosition = 3 And Mid$(filePath, 2, 1) = ":" Then
-        GetParentFolder = Left$(filePath, separatorPosition)
+    If Len(fileName) = 0 Then
+        fileName = "GeneratedDocument.pdf"
+    End If
+
+    If LCase$(Right$(fileName, Len(PDF_EXTENSION))) = PDF_EXTENSION Then
+        baseName = Left$(fileName, Len(fileName) - Len(PDF_EXTENSION))
     Else
-        GetParentFolder = Left$(filePath, separatorPosition - 1)
+        baseName = fileName
+    End If
+
+    fileName = CleanFileName(baseName) & PDF_EXTENSION
+
+    If Len(destinationFolder) = 0 Then
+        BuildSafePDFPath = fileName
+    Else
+        BuildSafePDFPath = CombinePath(destinationFolder, fileName)
     End If
 
     Exit Function
 
 ErrorHandler:
-    GetParentFolder = vbNullString
+    WriteErrorLog "PDFExporter.BuildSafePDFPath", Err.Number, Err.Description
+    BuildSafePDFPath = OutputPDFPath
 End Function
 
-Private Function RemoveTrailingPathSeparator(ByVal pathValue As String) As String
+Private Function GetFileName(ByVal FilePath As String) As String
+    Dim separatorPosition As Long
+
     On Error GoTo ErrorHandler
 
-    Do While Len(pathValue) > 1 _
-            And Right$(pathValue, 1) = WINDOWS_PATH_SEPARATOR _
-            And Not IsDriveRoot(pathValue)
-        pathValue = Left$(pathValue, Len(pathValue) - 1)
-    Loop
+    FilePath = RemoveTrailingPathSeparator(Trim$(FilePath))
+    separatorPosition = InStrRev(FilePath, "\")
 
-    RemoveTrailingPathSeparator = pathValue
+    If separatorPosition = 0 Then
+        GetFileName = FilePath
+    Else
+        GetFileName = Mid$(FilePath, separatorPosition + 1)
+    End If
+
     Exit Function
 
 ErrorHandler:
-    RemoveTrailingPathSeparator = vbNullString
-End Function
-
-Private Function IsDriveRoot(ByVal pathValue As String) As Boolean
-    IsDriveRoot = (Len(pathValue) = 3 _
-        And Mid$(pathValue, 2, 1) = ":" _
-        And Right$(pathValue, 1) = WINDOWS_PATH_SEPARATOR)
+    WriteErrorLog "PDFExporter.GetFileName", Err.Number, Err.Description
+    GetFileName = vbNullString
 End Function

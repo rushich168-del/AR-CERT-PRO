@@ -4,7 +4,7 @@
 
 AR-CERT PRO is a Microsoft Word VBA application designed to generate professional certificates automatically from Excel data. The project is structured as a commercial-quality automation solution for AaryaRushi Automation Labs, with a clean module layout, reusable components, and a roadmap for controlled feature development.
 
-Current Version: **v0.5**
+Current Version: **v0.6**
 
 ## Features
 
@@ -13,6 +13,7 @@ Current Version: **v0.5**
 - Late-bound Excel reader engine.
 - Word template engine that opens templates as generated document copies.
 - Placeholder replacement for `<<HeaderName>>` fields in document body content.
+- PDF export engine using Word fixed-format export.
 - Template-based certificate design support.
 - Placeholder replacement architecture.
 - PDF export module boundary.
@@ -21,7 +22,7 @@ Current Version: **v0.5**
 - Shared file, folder, filename, and timestamp utilities.
 - Organized project structure ready for source control and release packaging.
 
-> Note: v0.5 implements the placeholder replacement engine only. PDF generation, batch generation, mail merge, and GUI work remain planned for future versions.
+> Note: v0.6 implements the PDF export engine only. Batch generation, mail merge, and GUI work remain planned for future versions.
 
 ## Folder Structure
 
@@ -78,13 +79,19 @@ AR-CERT-PRO/
 - Support Excel headers with spaces, such as `<<Student Name>>`.
 - Replace all placeholders from header and row-value arrays.
 
-### v0.6 - Certificate Generation Workflow - Planned
+### v0.6 - PDF Export Engine - Complete
+
+- Export generated Word documents to PDF.
+- Ensure PDF output folders exist before export.
+- Sanitize PDF output filenames.
+
+### v0.7 - Certificate Generation Workflow - Planned
 
 - Generate certificates from Word templates.
 - Save generated Word documents.
 - Add batch processing flow from Excel rows.
 
-### v0.7 - PDF Export and Output Packaging - Planned
+### v0.8 - Output Packaging - Planned
 
 - Export generated certificates as PDF.
 - Standardize output naming.
@@ -100,6 +107,7 @@ AR-CERT-PRO/
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| v0.6 | 2026-06-30 | Added PDF export engine using Word fixed-format export. |
 | v0.5 | 2026-06-30 | Added placeholder replacement engine for Word document body placeholders. |
 | v0.4 | 2026-06-30 | Added Word template engine for opening, saving, closing, and accessing generated documents. |
 | v0.3 | 2026-06-30 | Added late-bound Excel reader engine with workbook, worksheet, cell, and range access. |

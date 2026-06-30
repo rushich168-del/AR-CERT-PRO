@@ -10,7 +10,7 @@ AaryaRushi Automation Labs
 
 ## Current Version
 
-v0.5
+v0.6
 
 ## Git Status
 
@@ -35,6 +35,7 @@ Commercial Product Development
 - ExcelReader.bas
 - WordEngine.bas
 - PlaceholderEngine.bas
+- PDFExporter.bas
 
 ## Completed Features
 
@@ -51,28 +52,29 @@ Commercial Product Development
 - Single placeholder replacement for `<<HeaderName>>` fields in Word document body content.
 - Bulk placeholder replacement from Excel headers and row values.
 - Support for header names with spaces in placeholders.
+- PDF export using Word fixed-format export.
+- PDF output folder creation before export.
+- PDF output filename sanitization.
 
 ## Not Yet Implemented
 
-- PDF generation workflow.
 - Batch generation workflow.
 - Mail merge.
 - GUI.
 
 ## Testing Status
 
-Static review completed for v0.5.
+Static review completed for v0.6.
 
 Manual Word/VBA runtime testing is still pending.
 
 ## Known Issues
 
-None recorded for v0.5.
+None recorded for v0.6.
 
 ## Backlog
 
 - Certificate generation workflow.
-- PDF export workflow.
 - Professional user interface.
 - Progress bar.
 - Settings window.
@@ -87,6 +89,10 @@ None recorded for v0.5.
 - Every completed version ends with a Git commit.
 
 ## Release History
+
+### v0.6
+
+PDF Export Engine completed.
 
 ### v0.5
 
