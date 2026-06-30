@@ -10,7 +10,7 @@ AaryaRushi Automation Labs
 
 ## Current Version
 
-v0.4
+v0.5
 
 ## Git Status
 
@@ -34,6 +34,7 @@ Commercial Product Development
 - FileManager.bas
 - ExcelReader.bas
 - WordEngine.bas
+- PlaceholderEngine.bas
 
 ## Completed Features
 
@@ -47,27 +48,29 @@ Commercial Product Development
 - Word template opening as a new generated document copy.
 - Generated Word document save, close, and access helpers.
 - Default template path handling through configuration.
+- Single placeholder replacement for `<<HeaderName>>` fields in Word document body content.
+- Bulk placeholder replacement from Excel headers and row values.
+- Support for header names with spaces in placeholders.
 
 ## Not Yet Implemented
 
-- Placeholder replacement workflow.
 - PDF generation workflow.
+- Batch generation workflow.
 - Mail merge.
 - GUI.
 
 ## Testing Status
 
-Static review completed for v0.4.
+Static review completed for v0.5.
 
 Manual Word/VBA runtime testing is still pending.
 
 ## Known Issues
 
-None recorded for v0.4.
+None recorded for v0.5.
 
 ## Backlog
 
-- Placeholder engine workflow.
 - Certificate generation workflow.
 - PDF export workflow.
 - Professional user interface.
@@ -84,6 +87,10 @@ None recorded for v0.4.
 - Every completed version ends with a Git commit.
 
 ## Release History
+
+### v0.5
+
+Placeholder Replacement Engine completed.
 
 ### v0.4
 

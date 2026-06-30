@@ -4,7 +4,7 @@
 
 AR-CERT PRO is a Microsoft Word VBA application designed to generate professional certificates automatically from Excel data. The project is structured as a commercial-quality automation solution for AaryaRushi Automation Labs, with a clean module layout, reusable components, and a roadmap for controlled feature development.
 
-Current Version: **v0.4**
+Current Version: **v0.5**
 
 ## Features
 
@@ -12,6 +12,7 @@ Current Version: **v0.4**
 - Excel-driven recipient data source.
 - Late-bound Excel reader engine.
 - Word template engine that opens templates as generated document copies.
+- Placeholder replacement for `<<HeaderName>>` fields in document body content.
 - Template-based certificate design support.
 - Placeholder replacement architecture.
 - PDF export module boundary.
@@ -20,7 +21,7 @@ Current Version: **v0.4**
 - Shared file, folder, filename, and timestamp utilities.
 - Organized project structure ready for source control and release packaging.
 
-> Note: v0.4 implements the Word template engine only. Placeholder replacement, PDF generation, mail merge, and GUI work remain planned for future versions.
+> Note: v0.5 implements the placeholder replacement engine only. PDF generation, batch generation, mail merge, and GUI work remain planned for future versions.
 
 ## Folder Structure
 
@@ -71,11 +72,11 @@ AR-CERT-PRO/
 - Save generated Word documents safely.
 - Close and expose the active generated document.
 
-### v0.5 - Placeholder Engine - Planned
+### v0.5 - Placeholder Replacement Engine - Complete
 
-- Detect placeholders in Word templates.
-- Replace placeholders with Excel row values.
-- Support reusable placeholder naming conventions.
+- Replace `<<HeaderName>>` placeholders in Word document body content.
+- Support Excel headers with spaces, such as `<<Student Name>>`.
+- Replace all placeholders from header and row-value arrays.
 
 ### v0.6 - Certificate Generation Workflow - Planned
 
@@ -99,6 +100,7 @@ AR-CERT-PRO/
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| v0.5 | 2026-06-30 | Added placeholder replacement engine for Word document body placeholders. |
 | v0.4 | 2026-06-30 | Added Word template engine for opening, saving, closing, and accessing generated documents. |
 | v0.3 | 2026-06-30 | Added late-bound Excel reader engine with workbook, worksheet, cell, and range access. |
 | v0.2 | 2026-06-30 | Added configuration constants, relative path helpers, logging, and shared utilities. |

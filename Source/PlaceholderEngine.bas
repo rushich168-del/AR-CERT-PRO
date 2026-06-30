@@ -3,135 +3,205 @@ Option Explicit
 
 Private Const PLACEHOLDER_PREFIX As String = "<<"
 Private Const PLACEHOLDER_SUFFIX As String = ">>"
-Private Const PLACEHOLDER_WILDCARD_PATTERN As String = "\<\<[!\<\>]@\>\>"
-Private Const SHAPE_TYPE_GROUP As Long = 6
 
-' Replaces all placeholders in the supplied Word document using values from a Dictionary.
-' Each dictionary key maps to a placeholder in the format <<Key>>.
-Public Function ReplacePlaceholders(ByVal document As Document, ByVal data As Object) As Boolean
+' Replaces one placeholder throughout the Word document body.
+Public Function ReplacePlaceholder(ByVal Doc As Object, ByVal Placeholder As String, ByVal Value As String) As Boolean
+    Dim searchText As String
+    Dim replacementCount As Long
+
+    On Error GoTo ErrorHandler
+
+    If Doc Is Nothing Then
+        WriteLog "Placeholder replacement skipped because document is not available."
+        ReplacePlaceholder = False
+        Exit Function
+    End If
+
+    searchText = NormalizePlaceholder(Placeholder)
+
+    If Len(searchText) = 0 Then
+        WriteLog "Placeholder replacement skipped because placeholder is blank."
+        ReplacePlaceholder = False
+        Exit Function
+    End If
+
+    replacementCount = ReplaceTextInBody(Doc, searchText, Value)
+    WriteLog "Placeholder replaced: " & searchText & " -> " & CStr(replacementCount) & " occurrence(s)."
+
+    ReplacePlaceholder = True
+    Exit Function
+
+ErrorHandler:
+    WriteErrorLog "PlaceholderEngine.ReplacePlaceholder", Err.Number, Err.Description
+    ReplacePlaceholder = False
+End Function
+
+' Replaces placeholders using Excel headers from row 1 and values from one data row.
+Public Function ReplaceAllPlaceholders(ByVal Doc As Object, ByVal Headers As Variant, ByVal RowValues As Variant) As Boolean
+    Dim itemCount As Long
+    Dim itemIndex As Long
+    Dim headerText As String
+    Dim valueText As String
+
+    On Error GoTo ErrorHandler
+
+    If Doc Is Nothing Then
+        WriteLog "Bulk placeholder replacement skipped because document is not available."
+        ReplaceAllPlaceholders = False
+        Exit Function
+    End If
+
+    itemCount = GetPairCount(Headers, RowValues)
+
+    If itemCount = 0 Then
+        WriteLog "Bulk placeholder replacement skipped because headers or row values are empty."
+        ReplaceAllPlaceholders = False
+        Exit Function
+    End If
+
+    For itemIndex = 1 To itemCount
+        headerText = ValueToText(GetIndexedValue(Headers, itemIndex))
+        valueText = ValueToText(GetIndexedValue(RowValues, itemIndex))
+
+        If Len(headerText) > 0 Then
+            If Not ReplacePlaceholder(Doc, headerText, valueText) Then
+                ReplaceAllPlaceholders = False
+                Exit Function
+            End If
+        End If
+    Next itemIndex
+
+    WriteLog "Bulk placeholder replacement completed for " & CStr(itemCount) & " field(s)."
+    ReplaceAllPlaceholders = True
+    Exit Function
+
+ErrorHandler:
+    WriteErrorLog "PlaceholderEngine.ReplaceAllPlaceholders", Err.Number, Err.Description
+    ReplaceAllPlaceholders = False
+End Function
+
+' Compatibility helper for existing dictionary-based workflow code.
+Public Function ReplacePlaceholders(ByVal Doc As Object, ByVal Data As Object) As Boolean
     Dim key As Variant
 
     On Error GoTo ErrorHandler
 
-    If document Is Nothing Or data Is Nothing Then
+    If Doc Is Nothing Or Data Is Nothing Then
+        WriteLog "Dictionary placeholder replacement skipped because document or data is not available."
         ReplacePlaceholders = False
         Exit Function
     End If
 
-    For Each key In data.Keys
-        ReplacePlaceholder document, CStr(key), ValueToText(data(key))
+    For Each key In Data.Keys
+        If Not ReplacePlaceholder(Doc, CStr(key), ValueToText(Data(key))) Then
+            ReplacePlaceholders = False
+            Exit Function
+        End If
     Next key
 
+    WriteLog "Dictionary placeholder replacement completed."
     ReplacePlaceholders = True
     Exit Function
 
 ErrorHandler:
+    WriteErrorLog "PlaceholderEngine.ReplacePlaceholders", Err.Number, Err.Description
     ReplacePlaceholders = False
 End Function
 
-' Replaces a single placeholder throughout the supplied Word document.
-' The placeholder argument can be provided as Name or <<Name>>.
-Public Sub ReplacePlaceholder(ByVal document As Document, ByVal placeholder As String, ByVal replacement As String)
+' Returns True when a placeholder exists in the Word document body.
+Public Function PlaceholderExists(ByVal Doc As Object, ByVal Placeholder As String) As Boolean
     Dim searchText As String
 
     On Error GoTo ErrorHandler
 
-    If document Is Nothing Then
-        Exit Sub
-    End If
-
-    searchText = NormalizePlaceholder(placeholder)
-
-    If Len(searchText) = 0 Then
-        Exit Sub
-    End If
-
-    ReplaceInAllStoryRanges document, searchText, replacement
-    ReplaceInAllShapes document, searchText, replacement
-    Exit Sub
-
-ErrorHandler:
-End Sub
-
-' Returns True when a placeholder exists anywhere in the supplied Word document.
-' The placeholder argument can be provided as Name or <<Name>>.
-Public Function PlaceholderExists(ByVal document As Document, ByVal placeholder As String) As Boolean
-    Dim searchText As String
-
-    On Error GoTo ErrorHandler
-
-    If document Is Nothing Then
+    If Doc Is Nothing Then
         PlaceholderExists = False
         Exit Function
     End If
 
-    searchText = NormalizePlaceholder(placeholder)
+    searchText = NormalizePlaceholder(Placeholder)
 
     If Len(searchText) = 0 Then
         PlaceholderExists = False
         Exit Function
     End If
 
-    PlaceholderExists = TextExistsInAllStories(document, searchText) Or TextExistsInAllShapes(document, searchText)
+    PlaceholderExists = TextExistsInBody(Doc, searchText)
     Exit Function
 
 ErrorHandler:
+    WriteErrorLog "PlaceholderEngine.PlaceholderExists", Err.Number, Err.Description
     PlaceholderExists = False
 End Function
 
-' Counts placeholders matching the supported <<Name>> format across the document.
-Public Function GetPlaceholderCount(ByVal document As Document) As Long
+' Counts supported placeholders in the Word document body.
+Public Function GetPlaceholderCount(ByVal Doc As Object) As Long
+    Dim bodyText As String
+    Dim searchStart As Long
+    Dim openPosition As Long
+    Dim closePosition As Long
+    Dim placeholderCount As Long
+
     On Error GoTo ErrorHandler
 
-    If document Is Nothing Then
+    If Doc Is Nothing Then
         GetPlaceholderCount = 0
         Exit Function
     End If
 
-    GetPlaceholderCount = CountPlaceholdersInAllStories(document) + CountPlaceholdersInAllShapes(document)
+    bodyText = CStr(Doc.Content.Text)
+    searchStart = 1
+
+    Do
+        openPosition = InStr(searchStart, bodyText, PLACEHOLDER_PREFIX, vbTextCompare)
+
+        If openPosition = 0 Then
+            Exit Do
+        End If
+
+        closePosition = InStr(openPosition + Len(PLACEHOLDER_PREFIX), bodyText, PLACEHOLDER_SUFFIX, vbTextCompare)
+
+        If closePosition = 0 Then
+            Exit Do
+        End If
+
+        placeholderCount = placeholderCount + 1
+        searchStart = closePosition + Len(PLACEHOLDER_SUFFIX)
+    Loop
+
+    GetPlaceholderCount = placeholderCount
     Exit Function
 
 ErrorHandler:
+    WriteErrorLog "PlaceholderEngine.GetPlaceholderCount", Err.Number, Err.Description
     GetPlaceholderCount = 0
 End Function
 
-' Validates that the supplied Word template contains at least one supported placeholder.
-Public Function ValidateTemplate(ByVal document As Document) As Boolean
+' Validates that the supplied Word document body contains at least one supported placeholder.
+Public Function ValidateTemplate(ByVal Doc As Object) As Boolean
     On Error GoTo ErrorHandler
 
-    ValidateTemplate = (GetPlaceholderCount(document) > 0)
+    ValidateTemplate = (GetPlaceholderCount(Doc) > 0)
     Exit Function
 
 ErrorHandler:
+    WriteErrorLog "PlaceholderEngine.ValidateTemplate", Err.Number, Err.Description
     ValidateTemplate = False
 End Function
 
-Private Sub ReplaceInAllStoryRanges(ByVal document As Document, ByVal searchText As String, ByVal replacement As String)
-    Dim storyRange As Range
-    Dim currentRange As Range
+Private Function ReplaceTextInBody(ByVal Doc As Object, ByVal SearchText As String, ByVal ReplacementText As String) As Long
+    Dim targetRange As Object
+    Dim replacementCount As Long
 
     On Error GoTo ErrorHandler
 
-    For Each storyRange In document.StoryRanges
-        Set currentRange = storyRange
-
-        Do While Not currentRange Is Nothing
-            ReplaceTextInRange currentRange, searchText, replacement
-            Set currentRange = currentRange.NextStoryRange
-        Loop
-    Next storyRange
-
-ErrorHandler:
-End Sub
-
-Private Sub ReplaceTextInRange(ByVal targetRange As Range, ByVal searchText As String, ByVal replacement As String)
-    On Error GoTo ErrorHandler
+    Set targetRange = Doc.Content.Duplicate
 
     With targetRange.Find
         .ClearFormatting
         .Replacement.ClearFormatting
-        .Text = searchText
-        .Replacement.Text = replacement
+        .Text = SearchText
+        .Replacement.Text = ReplacementText
         .Forward = True
         .Wrap = wdFindStop
         .Format = False
@@ -140,48 +210,32 @@ Private Sub ReplaceTextInRange(ByVal targetRange As Range, ByVal searchText As S
         .MatchWildcards = False
         .MatchSoundsLike = False
         .MatchAllWordForms = False
-        .Execute Replace:=wdReplaceAll
+
+        Do While .Execute(Replace:=wdReplaceOne)
+            replacementCount = replacementCount + 1
+            targetRange.Collapse wdCollapseEnd
+            targetRange.End = Doc.Content.End
+        Loop
     End With
 
-ErrorHandler:
-End Sub
-
-Private Function TextExistsInAllStories(ByVal document As Document, ByVal searchText As String) As Boolean
-    Dim storyRange As Range
-    Dim currentRange As Range
-
-    On Error GoTo ErrorHandler
-
-    For Each storyRange In document.StoryRanges
-        Set currentRange = storyRange
-
-        Do While Not currentRange Is Nothing
-            If TextExistsInRange(currentRange, searchText) Then
-                TextExistsInAllStories = True
-                Exit Function
-            End If
-
-            Set currentRange = currentRange.NextStoryRange
-        Loop
-    Next storyRange
-
-    TextExistsInAllStories = False
+    ReplaceTextInBody = replacementCount
     Exit Function
 
 ErrorHandler:
-    TextExistsInAllStories = False
+    WriteErrorLog "PlaceholderEngine.ReplaceTextInBody", Err.Number, Err.Description
+    ReplaceTextInBody = 0
 End Function
 
-Private Function TextExistsInRange(ByVal targetRange As Range, ByVal searchText As String) As Boolean
-    Dim searchRange As Range
+Private Function TextExistsInBody(ByVal Doc As Object, ByVal SearchText As String) As Boolean
+    Dim targetRange As Object
 
     On Error GoTo ErrorHandler
 
-    Set searchRange = targetRange.Duplicate
+    Set targetRange = Doc.Content.Duplicate
 
-    With searchRange.Find
+    With targetRange.Find
         .ClearFormatting
-        .Text = searchText
+        .Text = SearchText
         .Forward = True
         .Wrap = wdFindStop
         .Format = False
@@ -190,280 +244,121 @@ Private Function TextExistsInRange(ByVal targetRange As Range, ByVal searchText 
         .MatchWildcards = False
         .MatchSoundsLike = False
         .MatchAllWordForms = False
-        TextExistsInRange = .Execute
+        TextExistsInBody = .Execute
     End With
 
     Exit Function
 
 ErrorHandler:
-    TextExistsInRange = False
+    WriteErrorLog "PlaceholderEngine.TextExistsInBody", Err.Number, Err.Description
+    TextExistsInBody = False
 End Function
 
-Private Function CountPlaceholdersInAllStories(ByVal document As Document) As Long
-    Dim storyRange As Range
-    Dim currentRange As Range
-    Dim placeholderCount As Long
-
+Private Function NormalizePlaceholder(ByVal Placeholder As String) As String
     On Error GoTo ErrorHandler
 
-    For Each storyRange In document.StoryRanges
-        Set currentRange = storyRange
+    Placeholder = Trim$(Placeholder)
 
-        Do While Not currentRange Is Nothing
-            If currentRange.StoryType <> wdTextFrameStory Then
-                placeholderCount = placeholderCount + CountPlaceholdersInRange(currentRange)
-            End If
-
-            Set currentRange = currentRange.NextStoryRange
-        Loop
-    Next storyRange
-
-    CountPlaceholdersInAllStories = placeholderCount
-    Exit Function
-
-ErrorHandler:
-    CountPlaceholdersInAllStories = 0
-End Function
-
-Private Function CountPlaceholdersInRange(ByVal targetRange As Range) As Long
-    Dim searchRange As Range
-    Dim placeholderCount As Long
-
-    On Error GoTo ErrorHandler
-
-    Set searchRange = targetRange.Duplicate
-
-    With searchRange.Find
-        .ClearFormatting
-        .Text = PLACEHOLDER_WILDCARD_PATTERN
-        .Forward = True
-        .Wrap = wdFindStop
-        .Format = False
-        .MatchCase = False
-        .MatchWholeWord = False
-        .MatchWildcards = True
-        .MatchSoundsLike = False
-        .MatchAllWordForms = False
-
-        Do While .Execute
-            placeholderCount = placeholderCount + 1
-            searchRange.Collapse wdCollapseEnd
-        Loop
-    End With
-
-    CountPlaceholdersInRange = placeholderCount
-    Exit Function
-
-ErrorHandler:
-    CountPlaceholdersInRange = 0
-End Function
-
-Private Sub ReplaceInAllShapes(ByVal document As Document, ByVal searchText As String, ByVal replacement As String)
-    Dim shape As Shape
-    Dim section As Section
-    Dim headerFooter As HeaderFooter
-
-    On Error Resume Next
-
-    For Each shape In document.Shapes
-        ReplaceInShape shape, searchText, replacement
-    Next shape
-
-    For Each section In document.Sections
-        For Each headerFooter In section.Headers
-            ReplaceInShapesCollection headerFooter.Shapes, searchText, replacement
-        Next headerFooter
-
-        For Each headerFooter In section.Footers
-            ReplaceInShapesCollection headerFooter.Shapes, searchText, replacement
-        Next headerFooter
-    Next section
-End Sub
-
-Private Sub ReplaceInShapesCollection(ByVal shapes As Shapes, ByVal searchText As String, ByVal replacement As String)
-    Dim shape As Shape
-
-    On Error Resume Next
-
-    For Each shape In shapes
-        ReplaceInShape shape, searchText, replacement
-    Next shape
-End Sub
-
-Private Sub ReplaceInShape(ByVal shape As Shape, ByVal searchText As String, ByVal replacement As String)
-    Dim groupItem As Shape
-
-    On Error Resume Next
-
-    If shape.Type = SHAPE_TYPE_GROUP Then
-        For Each groupItem In shape.GroupItems
-            ReplaceInShape groupItem, searchText, replacement
-        Next groupItem
-    End If
-
-    If ShapeHasText(shape) Then
-        ReplaceTextInRange shape.TextFrame.TextRange, searchText, replacement
-    End If
-End Sub
-
-Private Function TextExistsInAllShapes(ByVal document As Document, ByVal searchText As String) As Boolean
-    Dim shape As Shape
-    Dim section As Section
-    Dim headerFooter As HeaderFooter
-
-    On Error Resume Next
-
-    For Each shape In document.Shapes
-        If TextExistsInShape(shape, searchText) Then
-            TextExistsInAllShapes = True
-            Exit Function
-        End If
-    Next shape
-
-    For Each section In document.Sections
-        For Each headerFooter In section.Headers
-            If TextExistsInShapesCollection(headerFooter.Shapes, searchText) Then
-                TextExistsInAllShapes = True
-                Exit Function
-            End If
-        Next headerFooter
-
-        For Each headerFooter In section.Footers
-            If TextExistsInShapesCollection(headerFooter.Shapes, searchText) Then
-                TextExistsInAllShapes = True
-                Exit Function
-            End If
-        Next headerFooter
-    Next section
-
-    TextExistsInAllShapes = False
-End Function
-
-Private Function TextExistsInShapesCollection(ByVal shapes As Shapes, ByVal searchText As String) As Boolean
-    Dim shape As Shape
-
-    On Error Resume Next
-
-    For Each shape In shapes
-        If TextExistsInShape(shape, searchText) Then
-            TextExistsInShapesCollection = True
-            Exit Function
-        End If
-    Next shape
-
-    TextExistsInShapesCollection = False
-End Function
-
-Private Function TextExistsInShape(ByVal shape As Shape, ByVal searchText As String) As Boolean
-    Dim groupItem As Shape
-
-    On Error Resume Next
-
-    If shape.Type = SHAPE_TYPE_GROUP Then
-        For Each groupItem In shape.GroupItems
-            If TextExistsInShape(groupItem, searchText) Then
-                TextExistsInShape = True
-                Exit Function
-            End If
-        Next groupItem
-    End If
-
-    If ShapeHasText(shape) Then
-        TextExistsInShape = TextExistsInRange(shape.TextFrame.TextRange, searchText)
-    End If
-End Function
-
-Private Function CountPlaceholdersInAllShapes(ByVal document As Document) As Long
-    Dim shape As Shape
-    Dim section As Section
-    Dim headerFooter As HeaderFooter
-    Dim placeholderCount As Long
-
-    On Error Resume Next
-
-    For Each shape In document.Shapes
-        placeholderCount = placeholderCount + CountPlaceholdersInShape(shape)
-    Next shape
-
-    For Each section In document.Sections
-        For Each headerFooter In section.Headers
-            placeholderCount = placeholderCount + CountPlaceholdersInShapesCollection(headerFooter.Shapes)
-        Next headerFooter
-
-        For Each headerFooter In section.Footers
-            placeholderCount = placeholderCount + CountPlaceholdersInShapesCollection(headerFooter.Shapes)
-        Next headerFooter
-    Next section
-
-    CountPlaceholdersInAllShapes = placeholderCount
-End Function
-
-Private Function CountPlaceholdersInShapesCollection(ByVal shapes As Shapes) As Long
-    Dim shape As Shape
-    Dim placeholderCount As Long
-
-    On Error Resume Next
-
-    For Each shape In shapes
-        placeholderCount = placeholderCount + CountPlaceholdersInShape(shape)
-    Next shape
-
-    CountPlaceholdersInShapesCollection = placeholderCount
-End Function
-
-Private Function CountPlaceholdersInShape(ByVal shape As Shape) As Long
-    Dim groupItem As Shape
-    Dim placeholderCount As Long
-
-    On Error Resume Next
-
-    If shape.Type = SHAPE_TYPE_GROUP Then
-        For Each groupItem In shape.GroupItems
-            placeholderCount = placeholderCount + CountPlaceholdersInShape(groupItem)
-        Next groupItem
-    End If
-
-    If ShapeHasText(shape) Then
-        placeholderCount = placeholderCount + CountPlaceholdersInRange(shape.TextFrame.TextRange)
-    End If
-
-    CountPlaceholdersInShape = placeholderCount
-End Function
-
-Private Function ShapeHasText(ByVal shape As Shape) As Boolean
-    On Error GoTo ErrorHandler
-
-    ShapeHasText = (shape.TextFrame.HasText <> 0)
-    Exit Function
-
-ErrorHandler:
-    ShapeHasText = False
-End Function
-
-Private Function NormalizePlaceholder(ByVal placeholder As String) As String
-    placeholder = Trim$(placeholder)
-
-    If Len(placeholder) = 0 Then
+    If Len(Placeholder) = 0 Then
         NormalizePlaceholder = vbNullString
-    ElseIf Left$(placeholder, Len(PLACEHOLDER_PREFIX)) = PLACEHOLDER_PREFIX _
-            And Right$(placeholder, Len(PLACEHOLDER_SUFFIX)) = PLACEHOLDER_SUFFIX Then
-        NormalizePlaceholder = placeholder
+    ElseIf Left$(Placeholder, Len(PLACEHOLDER_PREFIX)) = PLACEHOLDER_PREFIX _
+            And Right$(Placeholder, Len(PLACEHOLDER_SUFFIX)) = PLACEHOLDER_SUFFIX Then
+        NormalizePlaceholder = Placeholder
     Else
-        NormalizePlaceholder = PLACEHOLDER_PREFIX & placeholder & PLACEHOLDER_SUFFIX
+        NormalizePlaceholder = PLACEHOLDER_PREFIX & Placeholder & PLACEHOLDER_SUFFIX
     End If
+
+    Exit Function
+
+ErrorHandler:
+    WriteErrorLog "PlaceholderEngine.NormalizePlaceholder", Err.Number, Err.Description
+    NormalizePlaceholder = vbNullString
 End Function
 
-Private Function ValueToText(ByVal value As Variant) As String
+Private Function GetPairCount(ByVal Headers As Variant, ByVal RowValues As Variant) As Long
+    Dim headerCount As Long
+    Dim valueCount As Long
+
     On Error GoTo ErrorHandler
 
-    If IsError(value) Or IsNull(value) Or IsEmpty(value) Then
+    headerCount = GetValueCount(Headers)
+    valueCount = GetValueCount(RowValues)
+
+    If headerCount < valueCount Then
+        GetPairCount = headerCount
+    Else
+        GetPairCount = valueCount
+    End If
+
+    Exit Function
+
+ErrorHandler:
+    WriteErrorLog "PlaceholderEngine.GetPairCount", Err.Number, Err.Description
+    GetPairCount = 0
+End Function
+
+Private Function GetValueCount(ByVal Values As Variant) As Long
+    On Error GoTo TryOneDimensionalArray
+
+    If IsArray(Values) Then
+        GetValueCount = UBound(Values, 2) - LBound(Values, 2) + 1
+        Exit Function
+    End If
+
+TryOneDimensionalArray:
+    On Error GoTo TryCollection
+
+    If IsArray(Values) Then
+        GetValueCount = UBound(Values) - LBound(Values) + 1
+        Exit Function
+    End If
+
+TryCollection:
+    On Error GoTo ErrorHandler
+    GetValueCount = Values.Count
+    Exit Function
+
+ErrorHandler:
+    GetValueCount = 0
+End Function
+
+Private Function GetIndexedValue(ByVal Values As Variant, ByVal ItemIndex As Long) As Variant
+    On Error GoTo TryOneDimensionalArray
+
+    If IsArray(Values) Then
+        GetIndexedValue = Values(LBound(Values, 1), LBound(Values, 2) + ItemIndex - 1)
+        Exit Function
+    End If
+
+TryOneDimensionalArray:
+    On Error GoTo TryCollection
+
+    If IsArray(Values) Then
+        GetIndexedValue = Values(LBound(Values) + ItemIndex - 1)
+        Exit Function
+    End If
+
+TryCollection:
+    On Error GoTo ErrorHandler
+    GetIndexedValue = Values(ItemIndex)
+    Exit Function
+
+ErrorHandler:
+    GetIndexedValue = Empty
+End Function
+
+Private Function ValueToText(ByVal Value As Variant) As String
+    On Error GoTo ErrorHandler
+
+    If IsError(Value) Or IsNull(Value) Or IsEmpty(Value) Then
         ValueToText = vbNullString
     Else
-        ValueToText = CStr(value)
+        ValueToText = CStr(Value)
     End If
 
     Exit Function
 
 ErrorHandler:
+    WriteErrorLog "PlaceholderEngine.ValueToText", Err.Number, Err.Description
     ValueToText = vbNullString
 End Function

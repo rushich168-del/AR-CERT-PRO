@@ -2,6 +2,27 @@
 
 All notable changes to AR-CERT PRO will be documented in this file.
 
+## [v0.5] - 2026-06-30
+
+### Added
+
+- Added Placeholder Replacement Engine support in `Source/PlaceholderEngine.bas`.
+- Added `ReplacePlaceholder` for single `<<HeaderName>>` replacements in Word document body content.
+- Added `ReplaceAllPlaceholders` for Excel header and row-value arrays.
+- Added support for placeholders with spaces, such as `<<Student Name>>`.
+- Added logging for placeholder replacement actions and errors.
+
+### Changed
+
+- Updated project version to v0.5.
+- Updated README roadmap status for the Placeholder Replacement Engine.
+- Updated project state documentation.
+
+### Notes
+
+- Placeholder replacement is limited to Word document body content in this version.
+- PDF export and batch generation are not implemented in this version.
+
 ## [v0.4] - 2026-06-30
 
 ### Added
