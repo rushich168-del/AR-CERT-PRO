@@ -10,7 +10,7 @@ AaryaRushi Automation Labs
 
 ## Current Version
 
-v0.3
+v0.4
 
 ## Git Status
 
@@ -33,6 +33,7 @@ Commercial Product Development
 - Utilities.bas
 - FileManager.bas
 - ExcelReader.bas
+- WordEngine.bas
 
 ## Completed Features
 
@@ -43,10 +44,12 @@ Commercial Product Development
 - Workbook open/close handling with missing-file checks.
 - Worksheet selection with missing-worksheet handling.
 - Last row, last column, cell, and range reading from the active worksheet.
+- Word template opening as a new generated document copy.
+- Generated Word document save, close, and access helpers.
+- Default template path handling through configuration.
 
 ## Not Yet Implemented
 
-- Word automation workflow.
 - Placeholder replacement workflow.
 - PDF generation workflow.
 - Mail merge.
@@ -54,13 +57,13 @@ Commercial Product Development
 
 ## Testing Status
 
-Static review completed for v0.3.
+Static review completed for v0.4.
 
 Manual Word/VBA runtime testing is still pending.
 
 ## Known Issues
 
-None recorded for v0.3.
+None recorded for v0.4.
 
 ## Backlog
 
@@ -81,6 +84,10 @@ None recorded for v0.3.
 - Every completed version ends with a Git commit.
 
 ## Release History
+
+### v0.4
+
+Word Template Engine completed.
 
 ### v0.3
 

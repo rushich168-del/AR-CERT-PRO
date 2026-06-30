@@ -2,6 +2,27 @@
 
 All notable changes to AR-CERT PRO will be documented in this file.
 
+## [v0.4] - 2026-06-30
+
+### Added
+
+- Added Word Template Engine support in `Source/WordEngine.bas`.
+- Added generated document lifecycle functions: `OpenTemplate`, `SaveGeneratedDocument`, `CloseGeneratedDocument`, and `GetGeneratedDocument`.
+- Added default template path handling through `Config.bas`.
+- Added logging for important Word template actions and errors.
+- Added output folder creation checks through `Utilities.bas`.
+
+### Changed
+
+- Updated project version to v0.4.
+- Updated README roadmap status for the Word Template Engine.
+- Updated project state documentation.
+
+### Notes
+
+- Templates are opened as new generated document copies so the original template is not modified directly.
+- Placeholder replacement and PDF export are not implemented in this version.
+
 ## [v0.3] - 2026-06-30
 
 ### Added

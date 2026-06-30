@@ -4,13 +4,14 @@
 
 AR-CERT PRO is a Microsoft Word VBA application designed to generate professional certificates automatically from Excel data. The project is structured as a commercial-quality automation solution for AaryaRushi Automation Labs, with a clean module layout, reusable components, and a roadmap for controlled feature development.
 
-Current Version: **v0.3**
+Current Version: **v0.4**
 
 ## Features
 
 - Word-based certificate generation workflow.
 - Excel-driven recipient data source.
 - Late-bound Excel reader engine.
+- Word template engine that opens templates as generated document copies.
 - Template-based certificate design support.
 - Placeholder replacement architecture.
 - PDF export module boundary.
@@ -19,7 +20,7 @@ Current Version: **v0.3**
 - Shared file, folder, filename, and timestamp utilities.
 - Organized project structure ready for source control and release packaging.
 
-> Note: v0.3 implements the Excel reader engine only. Word automation, placeholder replacement, PDF generation, mail merge, and GUI work remain planned for future versions.
+> Note: v0.4 implements the Word template engine only. Placeholder replacement, PDF generation, mail merge, and GUI work remain planned for future versions.
 
 ## Folder Structure
 
@@ -58,25 +59,31 @@ AR-CERT-PRO/
 - Add structured logging utilities.
 - Define standard error handling patterns.
 
-### v0.3 ✅ Excel Reader Engine
+### v0.3 - Excel Reader Engine - Complete
 
 - Initialize and close Excel using late binding.
 - Open configured workbooks safely.
 - Select worksheets and read cells/ranges.
 
-### v0.4 - Placeholder Engine - Planned
+### v0.4 - Word Template Engine - Complete
+
+- Open configured Word templates as new generated document copies.
+- Save generated Word documents safely.
+- Close and expose the active generated document.
+
+### v0.5 - Placeholder Engine - Planned
 
 - Detect placeholders in Word templates.
 - Replace placeholders with Excel row values.
 - Support reusable placeholder naming conventions.
 
-### v0.5 - Certificate Generation Workflow - Planned
+### v0.6 - Certificate Generation Workflow - Planned
 
 - Generate certificates from Word templates.
 - Save generated Word documents.
 - Add batch processing flow from Excel rows.
 
-### v0.6 - PDF Export and Output Packaging - Planned
+### v0.7 - PDF Export and Output Packaging - Planned
 
 - Export generated certificates as PDF.
 - Standardize output naming.
@@ -92,6 +99,7 @@ AR-CERT-PRO/
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| v0.4 | 2026-06-30 | Added Word template engine for opening, saving, closing, and accessing generated documents. |
 | v0.3 | 2026-06-30 | Added late-bound Excel reader engine with workbook, worksheet, cell, and range access. |
 | v0.2 | 2026-06-30 | Added configuration constants, relative path helpers, logging, and shared utilities. |
 | v0.1 | 2026-06-29 | Created project structure, documentation, and VBA module placeholders. |

@@ -3,23 +3,117 @@ Option Explicit
 
 Private Const WORD_FORMAT_DOCUMENT_DEFAULT As Long = 16
 
-' Opens a Word template as a new editable document.
-' Returns Nothing when the template path is invalid or the document cannot be created.
-Public Function OpenTemplate(ByVal templatePath As String) As Document
+Private mGeneratedDocument As Document
+Private mTemplatePath As String
+
+' Opens a Word template as a new editable document without modifying the original template.
+Public Function OpenTemplate(ByVal TemplatePath As String) As Boolean
     On Error GoTo ErrorHandler
 
-    templatePath = Trim$(templatePath)
+    TemplatePath = ResolveTemplatePath(TemplatePath)
 
-    If Len(templatePath) = 0 Or Not LocalFileExists(templatePath) Then
-        Set OpenTemplate = Nothing
+    If Len(TemplatePath) = 0 Then
+        WriteLog "Template path is empty."
+        OpenTemplate = False
         Exit Function
     End If
 
-    Set OpenTemplate = Application.Documents.Add(Template:=templatePath, NewTemplate:=False, DocumentType:=0)
+    If Not FileExists(TemplatePath) Then
+        WriteLog "Template not found: " & TemplatePath
+        OpenTemplate = False
+        Exit Function
+    End If
+
+    CloseGeneratedDocument
+
+    Set mGeneratedDocument = Application.Documents.Add(Template:=TemplatePath, NewTemplate:=False, DocumentType:=0)
+    mTemplatePath = TemplatePath
+
+    OpenTemplate = DocumentExists(mGeneratedDocument)
+
+    If OpenTemplate Then
+        WriteLog "Template opened as generated document copy: " & TemplatePath
+    Else
+        WriteLog "Template could not be opened: " & TemplatePath
+    End If
+
     Exit Function
 
 ErrorHandler:
-    Set OpenTemplate = Nothing
+    WriteErrorLog "WordEngine.OpenTemplate", Err.Number, Err.Description
+    CloseGeneratedDocument
+    OpenTemplate = False
+End Function
+
+' Saves the generated document as a DOCX file.
+Public Function SaveGeneratedDocument(ByVal OutputPath As String) As Boolean
+    Dim outputFolder As String
+
+    On Error GoTo ErrorHandler
+
+    OutputPath = Trim$(OutputPath)
+
+    If Not DocumentExists(mGeneratedDocument) Then
+        WriteLog "No generated document is open to save."
+        SaveGeneratedDocument = False
+        Exit Function
+    End If
+
+    If Len(OutputPath) = 0 Then
+        WriteLog "Generated document output path is empty."
+        SaveGeneratedDocument = False
+        Exit Function
+    End If
+
+    outputFolder = GetParentFolder(OutputPath)
+
+    If Len(outputFolder) > 0 Then
+        If Not EnsureFolderExists(outputFolder) Then
+            WriteLog "Unable to create generated document output folder: " & outputFolder
+            SaveGeneratedDocument = False
+            Exit Function
+        End If
+    End If
+
+    mGeneratedDocument.SaveAs2 FileName:=OutputPath, FileFormat:=WORD_FORMAT_DOCUMENT_DEFAULT
+    WriteLog "Generated document saved: " & OutputPath
+
+    SaveGeneratedDocument = True
+    Exit Function
+
+ErrorHandler:
+    WriteErrorLog "WordEngine.SaveGeneratedDocument", Err.Number, Err.Description
+    SaveGeneratedDocument = False
+End Function
+
+' Closes the generated document without saving pending changes.
+Public Sub CloseGeneratedDocument()
+    On Error Resume Next
+
+    If Not mGeneratedDocument Is Nothing Then
+        mGeneratedDocument.Close SaveChanges:=wdDoNotSaveChanges
+        WriteLog "Generated document closed."
+    End If
+
+    Set mGeneratedDocument = Nothing
+    mTemplatePath = vbNullString
+End Sub
+
+' Returns the active generated document object.
+Public Function GetGeneratedDocument() As Object
+    On Error GoTo ErrorHandler
+
+    If DocumentExists(mGeneratedDocument) Then
+        Set GetGeneratedDocument = mGeneratedDocument
+    Else
+        Set GetGeneratedDocument = Nothing
+    End If
+
+    Exit Function
+
+ErrorHandler:
+    WriteErrorLog "WordEngine.GetGeneratedDocument", Err.Number, Err.Description
+    Set GetGeneratedDocument = Nothing
 End Function
 
 ' Saves the supplied document as a DOCX file.
@@ -27,10 +121,16 @@ End Function
 Public Function SaveDocument(ByVal document As Document, ByVal outputPath As String) As Boolean
     On Error GoTo ErrorHandler
 
+    If document Is mGeneratedDocument Then
+        SaveDocument = SaveGeneratedDocument(outputPath)
+        Exit Function
+    End If
+
     SaveDocument = SaveDocumentAs(document, outputPath, WORD_FORMAT_DOCUMENT_DEFAULT)
     Exit Function
 
 ErrorHandler:
+    WriteErrorLog "WordEngine.SaveDocument", Err.Number, Err.Description
     SaveDocument = False
 End Function
 
@@ -42,15 +142,26 @@ Public Function SaveDocumentAs(ByVal document As Document, ByVal filePath As Str
     filePath = Trim$(filePath)
 
     If Not DocumentExists(document) Or Len(filePath) = 0 Then
+        WriteLog "Document save skipped because document or path is invalid."
         SaveDocumentAs = False
         Exit Function
     End If
 
+    If Len(GetParentFolder(filePath)) > 0 Then
+        If Not EnsureFolderExists(GetParentFolder(filePath)) Then
+            WriteLog "Unable to create document output folder: " & GetParentFolder(filePath)
+            SaveDocumentAs = False
+            Exit Function
+        End If
+    End If
+
     document.SaveAs2 FileName:=filePath, FileFormat:=fileFormat
+    WriteLog "Document saved: " & filePath
     SaveDocumentAs = True
     Exit Function
 
 ErrorHandler:
+    WriteErrorLog "WordEngine.SaveDocumentAs", Err.Number, Err.Description
     SaveDocumentAs = False
 End Function
 
@@ -65,6 +176,11 @@ Public Sub CloseDocument(ByVal document As Document, ByVal saveChanges As Boolea
         Exit Sub
     End If
 
+    If document Is mGeneratedDocument Then
+        CloseGeneratedDocument
+        Exit Sub
+    End If
+
     If saveChanges Then
         closeOption = wdSaveChanges
     Else
@@ -72,6 +188,7 @@ Public Sub CloseDocument(ByVal document As Document, ByVal saveChanges As Boolea
     End If
 
     document.Close SaveChanges:=closeOption
+    WriteLog "Document closed."
 End Sub
 
 ' Creates a duplicate editable document from the supplied document.
@@ -101,6 +218,7 @@ ErrorHandler:
         CloseDocument duplicateDocument, False
     End If
 
+    WriteErrorLog "WordEngine.DuplicateDocument", Err.Number, Err.Description
     Set DuplicateDocument = Nothing
 End Function
 
@@ -123,22 +241,26 @@ ErrorHandler:
     DocumentExists = False
 End Function
 
-Private Function LocalFileExists(ByVal filePath As String) As Boolean
-    Dim attributes As Long
-
+Private Function ResolveTemplatePath(ByVal TemplatePath As String) As String
     On Error GoTo ErrorHandler
 
-    filePath = Trim$(filePath)
+    TemplatePath = Trim$(TemplatePath)
 
-    If Len(filePath) = 0 Then
-        LocalFileExists = False
-        Exit Function
+    If Len(TemplatePath) = 0 Then
+        If Len(TemplateFilePath) = 0 Then
+            If Not InitializeConfig() Then
+                ResolveTemplatePath = vbNullString
+                Exit Function
+            End If
+        End If
+
+        TemplatePath = TemplateFilePath
     End If
 
-    attributes = GetAttr(filePath)
-    LocalFileExists = ((attributes And vbDirectory) = 0)
+    ResolveTemplatePath = TemplatePath
     Exit Function
 
 ErrorHandler:
-    LocalFileExists = False
+    WriteErrorLog "WordEngine.ResolveTemplatePath", Err.Number, Err.Description
+    ResolveTemplatePath = vbNullString
 End Function

@@ -45,7 +45,12 @@ Public Function GenerateCertificates() As Boolean
         docxPath = BuildOutputFilePath(outputBaseName, DOCX_EXTENSION)
         pdfPath = BuildOutputFilePath(outputBaseName, PDF_EXTENSION)
 
-        Set generatedDocument = OpenTemplate(TemplateFilePath)
+        If Not OpenTemplate(TemplateFilePath) Then
+            GenerateCertificates = False
+            GoTo Cleanup
+        End If
+
+        Set generatedDocument = GetGeneratedDocument()
 
         If generatedDocument Is Nothing Then
             GenerateCertificates = False
