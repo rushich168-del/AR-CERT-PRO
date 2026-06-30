@@ -10,7 +10,7 @@ AaryaRushi Automation Labs
 
 ## Current Version
 
-v0.9
+v1.0
 
 ## Git Status
 
@@ -24,7 +24,7 @@ main
 
 ## Current Stage
 
-Commercial Product Development
+Stable Release
 
 ## Completed Modules
 
@@ -67,6 +67,8 @@ Commercial Product Development
 - v0.9 Real Word VBA validation completed.
 - WordEngine duplicateDocument compile issue fixed with `newDocument`.
 - Sample placeholder test and documentation aligned to `Name`, `Class`, and `Prize`.
+- v1.0 Stable Release prepared.
+- User guide and v1.0 release notes added.
 
 ## Not Yet Implemented
 
@@ -75,7 +77,7 @@ Commercial Product Development
 
 ## Testing Status
 
-Real Microsoft Word VBA workflow validation completed for v0.9.
+v1.0 stable release prepared after real Microsoft Word VBA workflow validation.
 
 ### Real Workflow Result
 
@@ -87,7 +89,7 @@ Real Microsoft Word VBA workflow validation completed for v0.9.
 
 ## Known Issues
 
-None recorded for v0.9 after validation.
+None recorded for v1.0 stable release.
 
 ## Backlog
 
@@ -105,6 +107,10 @@ None recorded for v0.9 after validation.
 - Every completed version ends with a Git commit.
 
 ## Release History
+
+### v1.0
+
+Stable Release prepared after real VBA workflow validation.
 
 ### v0.9
 

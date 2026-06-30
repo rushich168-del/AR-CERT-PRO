@@ -4,7 +4,7 @@
 
 AR-CERT PRO is a Microsoft Word VBA application designed to generate professional certificates automatically from Excel data. The project is structured as a commercial-quality automation solution for AaryaRushi Automation Labs, with a clean module layout, reusable components, and a roadmap for controlled feature development.
 
-Current Version: **v0.9**
+Current Version: **v1.0 Stable Release**
 
 ## Features
 
@@ -23,19 +23,22 @@ Current Version: **v0.9**
 - Shared file, folder, filename, and timestamp utilities.
 - Organized project structure ready for source control and release packaging.
 
-> Note: v0.9 validates the real Microsoft Word VBA workflow. Mail merge and GUI work remain planned for future versions.
+> Note: v1.0 is the first stable release validated inside Microsoft Word VBA. Mail merge and GUI work remain planned for future versions.
 
 ## Folder Structure
 
 ```text
 AR-CERT-PRO/
 |-- Documentation/
+|   |-- ReleaseNotes_v1.0.md
 |   |-- SampleExcelFormat.md
-|   `-- SampleTemplateFormat.md
+|   |-- SampleTemplateFormat.md
+|   `-- UserGuide.md
 |-- Source/
 |   |-- Main.bas
 |   |-- Config.bas
 |   |-- ExcelReader.bas
+|   |-- WordEngine.bas
 |   |-- PlaceholderEngine.bas
 |   |-- PDFExporter.bas
 |   |-- TestRunner.bas
@@ -107,17 +110,32 @@ AR-CERT-PRO/
 - Generated DOCX and PDF output files successfully.
 - Confirmed 3 data rows processed with 3 successes and 0 failures.
 
-### v1.0 - Output Packaging - Planned
+### v1.0 - Stable Release - Complete
 
-- Organize generated DOCX and PDF outputs.
-- Standardize output naming.
-- Prepare release-ready output folders.
+- Completed real Microsoft Word VBA workflow testing.
+- Added user guide and release notes.
+- Prepared the first stable release.
 
-### v1.0 - Production Release - Planned
+## Installation
 
-- Complete testing.
-- Add user documentation.
-- Package stable release artifacts.
+1. Clone or download this repository.
+2. Open Microsoft Word and create or open the macro-enabled runner document (`.docm`).
+3. Press `Alt+F11` to open the VBA editor.
+4. Import every `.bas` file from the `Source` folder.
+5. Save the Word file as a macro-enabled document.
+6. Enable macros when Word prompts for permission.
+
+## Usage
+
+1. Create the Excel workbook at `Excel/Students.xlsx`.
+2. Use worksheet `Sheet1`.
+3. Add headers in row 1. The tested sample uses `Name`, `Class`, and `Prize`.
+4. Add recipient data from row 2 onward.
+5. Create the Word template at `Templates/Certificate_Template.docx`.
+6. Add matching placeholders in the Word document body, such as `<<Name>>`, `<<Class>>`, and `<<Prize>>`.
+7. In Word VBA, run `GenerateCertificates`.
+8. Review generated DOCX and PDF files in `Output/`.
+9. Review logs in `Output/Logs/`.
 
 ## Manual Testing Guide
 
@@ -181,7 +199,7 @@ Output/Logs/
 
 ## Real VBA Test Validation
 
-v0.9 was tested successfully inside Microsoft Word VBA.
+v1.0 is based on the validated v0.9 workflow and was prepared after successful Microsoft Word VBA testing.
 
 - `TestLogger`: PASS
 - `TestConfigPaths`: PASS
@@ -199,6 +217,7 @@ v0.9 was tested successfully inside Microsoft Word VBA.
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| v1.0 | 2026-06-30 | Prepared stable release documentation after successful real Word VBA workflow validation. |
 | v0.9 | 2026-06-30 | Validated real Word VBA workflow, fixed WordEngine compile issue, and aligned sample placeholder docs. |
 | v0.8 | 2026-06-30 | Added manual testing package with sample formats and VBA test runner. |
 | v0.7 | 2026-06-30 | Added batch certificate generator connecting Excel, Word, placeholder, DOCX, and PDF engines. |

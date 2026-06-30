@@ -2,6 +2,32 @@
 
 All notable changes to AR-CERT PRO will be documented in this file.
 
+## [v1.0] - 2026-06-30
+
+### Added
+
+- Added stable release user guide in `Documentation/UserGuide.md`.
+- Added v1.0 release notes in `Documentation/ReleaseNotes_v1.0.md`.
+- Added clear installation and usage steps to `README.md`.
+
+### Changed
+
+- Updated project version to v1.0.
+- Marked v1.0 as the first stable release.
+- Updated project state after successful real Word VBA workflow validation.
+
+### Validation
+
+- Real Microsoft Word VBA workflow passed.
+- Batch generation processed 3 rows.
+- Success count: 3.
+- Failure count: 0.
+- Generated DOCX and PDF files successfully.
+
+### Notes
+
+- No workflow logic or public APIs changed in this release.
+
 ## [v0.9] - 2026-06-30
 
 ### Fixed
