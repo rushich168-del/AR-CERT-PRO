@@ -4,7 +4,7 @@
 
 AR-CERT PRO is a Microsoft Word VBA application designed to generate professional certificates automatically from Excel data. The project is structured as a commercial-quality automation solution for AaryaRushi Automation Labs, with a clean module layout, reusable components, and a roadmap for controlled feature development.
 
-Current Version: **v0.1**
+Current Version: **v0.2**
 
 ## Features
 
@@ -13,10 +13,12 @@ Current Version: **v0.1**
 - Template-based certificate design support.
 - Placeholder replacement architecture.
 - PDF export module boundary.
-- Logging and utility module boundaries.
+- Configuration constants and relative project path helpers.
+- Timestamped logging under `Output/Logs`.
+- Shared file, folder, filename, and timestamp utilities.
 - Organized project structure ready for source control and release packaging.
 
-> Note: v0.1 establishes the project structure and documentation only. Business logic will be implemented in future versions.
+> Note: v0.2 implements configuration and logging foundations only. Excel reading, placeholder replacement, certificate generation, and PDF export workflow remain planned for future versions.
 
 ## Folder Structure
 
@@ -43,43 +45,43 @@ AR-CERT-PRO/
 
 ## Development Roadmap
 
-### v0.1 - Project Foundation
+### v0.1 - Project Foundation - Complete
 
 - Create GitHub-ready folder structure.
 - Add documentation files.
 - Add VBA source module placeholders.
 
-### v0.2 - Configuration and Logging
+### v0.2 - Configuration and Logging - Complete
 
 - Implement project configuration constants.
 - Add structured logging utilities.
 - Define standard error handling patterns.
 
-### v0.3 - Excel Data Reader
+### v0.3 - Excel Data Reader - Planned
 
 - Read recipient data from Excel workbooks.
 - Validate required columns.
 - Normalize input values for certificate generation.
 
-### v0.4 - Placeholder Engine
+### v0.4 - Placeholder Engine - Planned
 
 - Detect placeholders in Word templates.
 - Replace placeholders with Excel row values.
 - Support reusable placeholder naming conventions.
 
-### v0.5 - Certificate Generation Workflow
+### v0.5 - Certificate Generation Workflow - Planned
 
 - Generate certificates from Word templates.
 - Save generated Word documents.
 - Add batch processing flow from Excel rows.
 
-### v0.6 - PDF Export and Output Packaging
+### v0.6 - PDF Export and Output Packaging - Planned
 
 - Export generated certificates as PDF.
 - Standardize output naming.
 - Prepare release-ready output folders.
 
-### v1.0 - Production Release
+### v1.0 - Production Release - Planned
 
 - Complete testing.
 - Add user documentation.
@@ -89,4 +91,5 @@ AR-CERT-PRO/
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| v0.2 | 2026-06-30 | Added configuration constants, relative path helpers, logging, and shared utilities. |
 | v0.1 | 2026-06-29 | Created project structure, documentation, and VBA module placeholders. |

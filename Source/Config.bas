@@ -1,32 +1,36 @@
 Attribute VB_Name = "Config"
 Option Explicit
 
-' Application identity used throughout AR-CERT PRO.
-Public Const APP_NAME As String = "AR-CERT PRO"
-Public Const APP_VERSION As String = "v0.1"
+' Project identity and default folder/file configuration.
+Public Const PROJECT_NAME As String = "AR-CERT PRO"
+Public Const PROJECT_VERSION As String = "v0.2"
+Public Const TEMPLATE_FOLDER As String = "Templates"
+Public Const EXCEL_FOLDER As String = "Excel"
+Public Const OUTPUT_FOLDER As String = "Output"
+Public Const LOG_FOLDER As String = "Output\Logs"
+Public Const DEFAULT_EXCEL_FILE As String = "Students.xlsx"
+Public Const DEFAULT_TEMPLATE_FILE As String = "Certificate_Template.docx"
 
-' Global configuration values populated during application startup.
+' Backward-compatible configuration values populated during application startup.
 Public ProjectFolder As String
 Public ExcelFilePath As String
 Public TemplateFilePath As String
-Public OutputFolder As String
-Public LogFolder As String
+Public CurrentOutputFolder As String
+Public CurrentLogFolder As String
 Public LastConfigError As String
 
-Private Const DEFAULT_OUTPUT_FOLDER_NAME As String = "Output"
-Private Const DEFAULT_LOG_FOLDER_NAME As String = "Output\Logs"
-Private Const DEFAULT_EXCEL_FILE_PATH As String = "Excel\Students.xlsx"
-Private Const DEFAULT_TEMPLATE_FILE_PATH As String = "Templates\Certificate_Template.docx"
 Private Const SOURCE_FOLDER_NAME As String = "Source"
 
 ' Initializes the application configuration using the current Word project location.
-' This procedure detects the project folder, assigns default Output and Log folders,
-' and creates the required folders when they do not already exist.
 Public Function InitializeConfig() As Boolean
     On Error GoTo ErrorHandler
 
     LastConfigError = vbNullString
-    ProjectFolder = DetectProjectFolder()
+    ProjectFolder = GetProjectPath()
+    ExcelFilePath = GetDefaultExcelFilePath()
+    TemplateFilePath = GetDefaultTemplateFilePath()
+    CurrentOutputFolder = GetOutputFolderPath()
+    CurrentLogFolder = GetLogFolderPath()
 
     If Len(ProjectFolder) = 0 Then
         LastConfigError = "Unable to detect the project folder."
@@ -34,13 +38,17 @@ Public Function InitializeConfig() As Boolean
         Exit Function
     End If
 
-    ExcelFilePath = CombinePath(ProjectFolder, DEFAULT_EXCEL_FILE_PATH)
-    TemplateFilePath = CombinePath(ProjectFolder, DEFAULT_TEMPLATE_FILE_PATH)
-    OutputFolder = CombinePath(ProjectFolder, DEFAULT_OUTPUT_FOLDER_NAME)
-    LogFolder = CombinePath(ProjectFolder, DEFAULT_LOG_FOLDER_NAME)
+    If Not EnsureFolderExists(CurrentOutputFolder) Then
+        LastConfigError = "Unable to create output folder: " & CurrentOutputFolder
+        InitializeConfig = False
+        Exit Function
+    End If
 
-    EnsureFolderExists OutputFolder
-    EnsureFolderExists LogFolder
+    If Not EnsureFolderExists(CurrentLogFolder) Then
+        LastConfigError = "Unable to create log folder: " & CurrentLogFolder
+        InitializeConfig = False
+        Exit Function
+    End If
 
     InitializeConfig = True
     Exit Function
@@ -50,16 +58,15 @@ ErrorHandler:
     InitializeConfig = False
 End Function
 
-' Clears all configuration values so the application can be initialized again
-' without carrying stale paths from a previous run.
+' Clears all configuration values so the application can be initialized again.
 Public Sub ResetConfig()
     On Error GoTo ErrorHandler
 
     ProjectFolder = vbNullString
     ExcelFilePath = vbNullString
     TemplateFilePath = vbNullString
-    OutputFolder = vbNullString
-    LogFolder = vbNullString
+    CurrentOutputFolder = vbNullString
+    CurrentLogFolder = vbNullString
     LastConfigError = vbNullString
     Exit Sub
 
@@ -68,7 +75,6 @@ ErrorHandler:
 End Sub
 
 ' Validates the minimum configuration required before certificate generation can run.
-' Returns True only when the Excel file, Word template, and Output folder all exist.
 Public Function ValidateConfiguration() As Boolean
     On Error GoTo ErrorHandler
 
@@ -86,8 +92,8 @@ Public Function ValidateConfiguration() As Boolean
         Exit Function
     End If
 
-    If Not FolderExists(OutputFolder) Then
-        LastConfigError = "Output folder does not exist: " & OutputFolder
+    If Not FolderExists(CurrentOutputFolder) Then
+        LastConfigError = "Output folder does not exist: " & CurrentOutputFolder
         ValidateConfiguration = False
         Exit Function
     End If
@@ -100,11 +106,14 @@ ErrorHandler:
     ValidateConfiguration = False
 End Function
 
-Private Function DetectProjectFolder() As String
+' Returns the project root derived from ThisDocument.Path.
+Public Function GetProjectPath() As String
     Dim basePath As String
     Dim parentPath As String
 
-    basePath = ThisDocument.Path
+    On Error GoTo ErrorHandler
+
+    basePath = Trim$(ThisDocument.Path)
 
     If Len(basePath) = 0 Then
         basePath = CurDir$
@@ -116,100 +125,81 @@ Private Function DetectProjectFolder() As String
         parentPath = GetParentFolder(basePath)
 
         If Len(parentPath) > 0 Then
-            DetectProjectFolder = parentPath
+            GetProjectPath = parentPath
             Exit Function
         End If
     End If
 
-    DetectProjectFolder = basePath
-End Function
-
-Private Sub EnsureFolderExists(ByVal folderPath As String)
-    If Len(folderPath) = 0 Then
-        Err.Raise vbObjectError + 1000, "Config.EnsureFolderExists", "Folder path is empty."
-    End If
-
-    If Not FolderExists(folderPath) Then
-        MkDir folderPath
-    End If
-End Sub
-
-Private Function FileExists(ByVal filePath As String) As Boolean
-    Dim attributes As Long
-
-    On Error GoTo ErrorHandler
-
-    If Len(filePath) = 0 Then
-        FileExists = False
-        Exit Function
-    End If
-
-    attributes = GetAttr(filePath)
-    FileExists = ((attributes And vbDirectory) = 0)
+    GetProjectPath = basePath
     Exit Function
 
 ErrorHandler:
-    FileExists = False
+    LastConfigError = "GetProjectPath failed: " & Err.Description
+    GetProjectPath = vbNullString
 End Function
 
-Private Function FolderExists(ByVal folderPath As String) As Boolean
-    Dim attributes As Long
-
+Public Function GetTemplateFolderPath() As String
     On Error GoTo ErrorHandler
 
-    If Len(folderPath) = 0 Then
-        FolderExists = False
-        Exit Function
-    End If
-
-    attributes = GetAttr(folderPath)
-    FolderExists = ((attributes And vbDirectory) = vbDirectory)
+    GetTemplateFolderPath = CombinePath(GetProjectPath(), TEMPLATE_FOLDER)
     Exit Function
 
 ErrorHandler:
-    FolderExists = False
+    LastConfigError = "GetTemplateFolderPath failed: " & Err.Description
+    GetTemplateFolderPath = vbNullString
 End Function
 
-Private Function CombinePath(ByVal basePath As String, ByVal childPath As String) As String
-    basePath = RemoveTrailingPathSeparator(basePath)
+Public Function GetExcelFolderPath() As String
+    On Error GoTo ErrorHandler
 
-    If Len(basePath) = 0 Then
-        CombinePath = childPath
-    Else
-        CombinePath = basePath & Application.PathSeparator & childPath
-    End If
+    GetExcelFolderPath = CombinePath(GetProjectPath(), EXCEL_FOLDER)
+    Exit Function
+
+ErrorHandler:
+    LastConfigError = "GetExcelFolderPath failed: " & Err.Description
+    GetExcelFolderPath = vbNullString
 End Function
 
-Private Function RemoveTrailingPathSeparator(ByVal folderPath As String) As String
-    Do While Len(folderPath) > 1 And Right$(folderPath, 1) = Application.PathSeparator
-        folderPath = Left$(folderPath, Len(folderPath) - 1)
-    Loop
+Public Function GetOutputFolderPath() As String
+    On Error GoTo ErrorHandler
 
-    RemoveTrailingPathSeparator = folderPath
+    GetOutputFolderPath = CombinePath(GetProjectPath(), OUTPUT_FOLDER)
+    Exit Function
+
+ErrorHandler:
+    LastConfigError = "GetOutputFolderPath failed: " & Err.Description
+    GetOutputFolderPath = vbNullString
 End Function
 
-Private Function GetFolderName(ByVal folderPath As String) As String
-    Dim separatorPosition As Long
+Public Function GetLogFolderPath() As String
+    On Error GoTo ErrorHandler
 
-    folderPath = RemoveTrailingPathSeparator(folderPath)
-    separatorPosition = InStrRev(folderPath, Application.PathSeparator)
+    GetLogFolderPath = CombinePath(GetProjectPath(), LOG_FOLDER)
+    Exit Function
 
-    If separatorPosition = 0 Then
-        GetFolderName = folderPath
-    Else
-        GetFolderName = Mid$(folderPath, separatorPosition + 1)
-    End If
+ErrorHandler:
+    LastConfigError = "GetLogFolderPath failed: " & Err.Description
+    GetLogFolderPath = vbNullString
 End Function
 
-Private Function GetParentFolder(ByVal folderPath As String) As String
-    Dim separatorPosition As Long
+Public Function GetDefaultExcelFilePath() As String
+    On Error GoTo ErrorHandler
 
-    folderPath = RemoveTrailingPathSeparator(folderPath)
-    separatorPosition = InStrRev(folderPath, Application.PathSeparator)
+    GetDefaultExcelFilePath = CombinePath(GetExcelFolderPath(), DEFAULT_EXCEL_FILE)
+    Exit Function
 
-    If separatorPosition > 0 Then
-        GetParentFolder = Left$(folderPath, separatorPosition - 1)
-    Else
-        GetParentFolder = vbNullString
-    End If
+ErrorHandler:
+    LastConfigError = "GetDefaultExcelFilePath failed: " & Err.Description
+    GetDefaultExcelFilePath = vbNullString
+End Function
+
+Public Function GetDefaultTemplateFilePath() As String
+    On Error GoTo ErrorHandler
+
+    GetDefaultTemplateFilePath = CombinePath(GetTemplateFolderPath(), DEFAULT_TEMPLATE_FILE)
+    Exit Function
+
+ErrorHandler:
+    LastConfigError = "GetDefaultTemplateFilePath failed: " & Err.Description
+    GetDefaultTemplateFilePath = vbNullString
 End Function
