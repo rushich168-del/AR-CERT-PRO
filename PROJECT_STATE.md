@@ -10,7 +10,7 @@ AaryaRushi Automation Labs
 
 ## Current Version
 
-v0.7
+v0.8
 
 ## Git Status
 
@@ -36,6 +36,7 @@ Commercial Product Development
 - WordEngine.bas
 - PlaceholderEngine.bas
 - PDFExporter.bas
+- TestRunner.bas
 
 ## Completed Features
 
@@ -59,6 +60,10 @@ Commercial Product Development
 - Per-row Word template copy creation, placeholder replacement, DOCX save, and PDF export.
 - Name-based output file naming with row-number fallback.
 - Row-level success/failure logging and final summary counts.
+- Manual sample Excel format documentation.
+- Manual sample Word template format documentation.
+- Manual VBA test runner for engine-level and complete workflow checks.
+- v0.8 Manual Testing Package Completed.
 
 ## Not Yet Implemented
 
@@ -67,13 +72,13 @@ Commercial Product Development
 
 ## Testing Status
 
-Static review completed for v0.7.
+Static review completed for v0.8.
 
-Manual Word/VBA runtime testing is still pending.
+Manual Word/VBA runtime testing package is ready.
 
 ## Known Issues
 
-None recorded for v0.7.
+None recorded for v0.8.
 
 ## Backlog
 
@@ -91,6 +96,10 @@ None recorded for v0.7.
 - Every completed version ends with a Git commit.
 
 ## Release History
+
+### v0.8
+
+Manual Testing Package completed.
 
 ### v0.7
 

@@ -2,6 +2,25 @@
 
 All notable changes to AR-CERT PRO will be documented in this file.
 
+## [v0.8] - 2026-06-30
+
+### Added
+
+- Added `Documentation/SampleExcelFormat.md` with required workbook layout and sample rows.
+- Added `Documentation/SampleTemplateFormat.md` with supported placeholder examples and rules.
+- Added `Source/TestRunner.bas` with manual test procedures for configuration, logging, Excel, Word, placeholders, PDF export, and full workflow.
+- Added README manual testing guide for importing modules, preparing sample files, running `TestCompleteWorkflow`, and locating outputs/logs.
+
+### Changed
+
+- Updated project version to v0.8.
+- Updated project state documentation for the manual testing package.
+
+### Notes
+
+- Batch generation logic was not changed.
+- GUI is not implemented in this version.
+
 ## [v0.7] - 2026-06-30
 
 ### Added
